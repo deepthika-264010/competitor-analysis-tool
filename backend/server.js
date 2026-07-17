@@ -1,6 +1,10 @@
+require("dotenv").config();
+require("./config/db");
 const express = require("express");
 const cors = require("cors");
-
+const companyAnalysisRoutes =require("./routes/companyAnalysisRoutes");
+const companyRoutes = require("./routes/companyRoutes");
+const aiRoutes = require("./routes/aiRoutes");
 const app = express();
 
 app.use(cors());
@@ -10,16 +14,9 @@ app.get("/", (req, res) => {
     res.send("AI Competitor Intelligence Backend is Running!");
 });
 
-app.post("/analyze", (req, res) => {
-
-    console.log(req.body);
-
-    res.json({
-        message: "Company received successfully"
-    });
-
-});
-
+app.use(companyRoutes);
+app.use(aiRoutes);
+app.use(companyAnalysisRoutes);
 const PORT = 3000;
 
 app.listen(PORT, () => {

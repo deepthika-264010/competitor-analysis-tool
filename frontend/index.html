@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Competitor Intelligence Platform</title>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- ================= Sidebar ================= -->
+
+    <aside class="sidebar">
+
+        <h2>AI Platform</h2>
+
+        <ul class="sidebar-menu">
+
+            <li onclick="showPage('dashboardPage')">
+                🏠 Dashboard
+            </li>
+
+            <li onclick="showPage('companiesPage')">
+                🏢 Company Details
+            </li>
+
+            <li onclick="showPage('newsPage')">
+                📰 Latest News
+            </li>
+
+            <li onclick="showPage('swotPage')">
+                📊 SWOT Analysis
+            </li>
+
+            <li onclick="showPage('chatPage')">
+                💬 AI Chat
+            </li>
+
+        </ul>
+
+    </aside>
+
+    <!-- ================= Main ================= -->
+
+    <main class="main">
+
+        <!-- Header -->
+
+        <div class="header">
+
+            <h1>AI Competitor Intelligence Platform</h1>
+
+            <p>
+                Analyze any company using AI, Website Scraping and Live News
+            </p>
+
+        </div>
+
+        <!-- Search -->
+
+        <div class="search-section">
+
+            <input
+                id="message"
+                type="text"
+                placeholder="Enter Company Name (Microsoft, Apple, Tesla...)">
+
+            <button id="analyzeBtn">
+                🔍 Analyze
+            </button>
+
+        </div>
+
+        <!-- Loading -->
+
+        <div id="loading" class="loading" style="display:none;">
+
+            🔍 Finding competitors...<br>
+            🌐 Scraping website...<br>
+            📰 Fetching latest news...<br>
+            🧠 Generating AI analysis...
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- Dashboard -->
+        <!-- ================================================= -->
+
+        <div id="dashboardPage" class="page">
+
+            <div class="dashboard">
+
+                <div class="left-panel">
+
+                    <div class="card">
+
+                        <h2>🏢 Company Overview</h2>
+
+                        <div id="companyOverview">
+
+                            Select a company to begin analysis.
+
+                        </div>
+
+                    </div>
+
+                    <div class="card">
+
+                        <h2>🏆 Competitors</h2>
+
+                        <div id="competitors">
+
+                            No competitors loaded.
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- Company Details -->
+        <!-- ================================================= -->
+
+        <div id="companiesPage" class="page" style="display:none;">
+
+            <div class="card">
+
+                <h2>🏢 Company Details</h2>
+
+                <div id="companyDetails">
+
+                    Analyze a company to view details.
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- Latest News -->
+        <!-- ================================================= -->
+
+        <div id="newsPage" class="page" style="display:none;">
+
+            <div class="card">
+
+                <h2>📰 Latest News</h2>
+
+                <div id="latestNews">
+
+                    No news available.
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- SWOT -->
+        <!-- ================================================= -->
+
+        <div id="swotPage" class="page" style="display:none;">
+
+            <h2>📊 SWOT Analysis</h2>
+
+            <div class="swot-grid">
+
+                <div class="card">
+
+                    <h3>🟢 Strengths</h3>
+
+                    <ul id="strengthsList"></ul>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>🔴 Weaknesses</h3>
+
+                    <ul id="weaknessesList"></ul>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>🟡 Opportunities</h3>
+
+                    <ul id="opportunitiesList"></ul>
+
+                </div>
+
+                <div class="card">
+
+                    <h3>⚫ Threats</h3>
+
+                    <ul id="threatsList"></ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================================================= -->
+        <!-- Chat -->
+        <!-- ================================================= -->
+
+        <div id="chatPage" class="page" style="display:none;">
+
+            <div class="chat-card">
+
+                <h2>🤖 AI Assistant</h2>
+
+                <div id="chatBox" class="chat-box">
+
+                    <div class="ai-message">
+
+                        <strong>Welcome!</strong>
+
+                        <br><br>
+
+                        Analyze a company first.
+
+                        <br><br>
+
+                        Then ask:
+
+                        <ul>
+
+                            <li>Who are the competitors?</li>
+
+                            <li>Summarize the company.</li>
+
+                            <li>What are its strengths?</li>
+
+                            <li>Compare it with Google.</li>
+
+                        </ul>
+
+                    </div>
+
+                </div>
+
+                <div class="chat-input">
+
+                    <input
+                        id="chatQuestion"
+                        type="text"
+                        placeholder="Ask anything about the company...">
+
+                    <button id="askBtn">
+
+                        Send
+
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
