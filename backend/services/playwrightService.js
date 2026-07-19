@@ -11,12 +11,14 @@ async function scrapeWebsite(url) {
     try {
 
         await page.goto(url, {
-            waitUntil: "networkidle",
-            timeout: 60000
-        });
+    waitUntil: "domcontentloaded",
+    timeout: 60000
+});
+
+await page.waitForTimeout(3000);
 
         const title = await page.title();
-
+        console.log("Page title:", title);
         const description = await page.evaluate(() => {
 
             const meta =

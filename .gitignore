@@ -1,14 +1,17 @@
-# Dependencies
 node_modules/
-backend/node_modules/
-
-# Environment variables
 .env
-backend/.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Logs
+package-lock.json
+
+playwright-report/
+test-results/
+
+coverage/
+
+logs/
+
 *.log
-
-# OS files
-.DS_Store
-Thumbs.db

@@ -16,12 +16,37 @@ const companyDetails = document.getElementById("companyDetails");
 const competitorsDiv = document.getElementById("competitors");
 const latestNewsDiv = document.getElementById("latestNews");
 
+const currentCompany = document.getElementById("currentCompany");
+const companyNameCard = document.getElementById("companyNameCard");
+const competitorCount = document.getElementById("competitorCount");
+const newsCount = document.getElementById("newsCount");
+const statusCard = document.getElementById("statusCard");
+
+let competitorChart = null;
+let newsChart = null;
+
 // =========================================
 // Events
 // =========================================
 
 analyzeBtn.addEventListener("click", analyzeCompany);
 askBtn.addEventListener("click", askQuestion);
+
+companyInput.addEventListener("keypress", function (e) {
+
+    if (e.key === "Enter") {
+        analyzeCompany();
+    }
+
+});
+
+chatInput.addEventListener("keypress", function (e) {
+
+    if (e.key === "Enter") {
+        askQuestion();
+    }
+
+});
 
 // =========================================
 // Analyze Company
@@ -32,56 +57,104 @@ async function analyzeCompany() {
     const company = companyInput.value.trim();
 
     if (!company) {
+
         alert("Please enter a company name.");
         return;
+
     }
+
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = "Analyzing...";
 
     loading.style.display = "block";
 
     try {
 
-        const response = await fetch(
-            "http://localhost:3000/analyze-company",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: company
-                })
-            }
-        );
+        const response = await fetch("http://localhost:3000/analyze-company", {
+
+            method: "POST",
+
+            headers: {
+
+                "Content-Type": "application/json"
+
+            },
+
+            body: JSON.stringify({
+
+                message: company
+
+            })
+
+        });
 
         const data = await response.json();
 
-        console.log(data);
-
         if (!data.success) {
+
             alert(data.message || "Unable to analyze company.");
+
             return;
+
         }
 
+        updateDashboard(data);
+
         displayCompanyOverview(data);
+
         displayCompanyDetails(data);
+
         displayCompetitors(data.competitors);
+
         displayLatestNews(data.latestNews);
+
         displaySWOT(data.swot);
+
+        createCharts(data);
 
         showPage("dashboardPage");
 
     }
+
     catch (error) {
 
         console.error(error);
+
         alert("Unable to analyze company.");
 
     }
+
     finally {
+
+        analyzeBtn.disabled = false;
+
+        analyzeBtn.textContent = "Analyze Company";
 
         loading.style.display = "none";
 
     }
+
+}
+
+// =========================================
+// Dashboard
+// =========================================
+
+function updateDashboard(data) {
+
+    currentCompany.textContent = data.company;
+
+    companyNameCard.textContent = data.company;
+
+    competitorCount.textContent =
+
+        data.competitors ? data.competitors.length : 0;
+
+    newsCount.textContent =
+
+        data.latestNews ? data.latestNews.length : 0;
+
+    statusCard.textContent = "Completed";
 
 }
 
@@ -92,16 +165,31 @@ async function analyzeCompany() {
 function displayCompanyOverview(data) {
 
     companyOverview.innerHTML = `
-        <b>Company</b><br>
-        ${data.company}
 
-        <br><br>
+        <h2>${data.company}</h2>
 
-        <b>Website</b><br>
+        <br>
 
-        <a href="${data.website}" target="_blank">
-            ${data.website}
-        </a>
+        <p>
+
+            <strong>Website :</strong>
+
+            <a href="${data.website}" target="_blank">
+
+                ${data.website}
+
+            </a>
+
+        </p>
+
+        <br>
+
+        <p>
+
+            ${data.websiteData.description || "No description available."}
+
+        </p>
+
     `;
 
 }
@@ -114,38 +202,71 @@ function displayCompanyDetails(data) {
 
     companyDetails.innerHTML = `
 
-        <h3>${data.company}</h3>
+        <div class="details-grid">
 
-        <p>
-            <strong>Website :</strong>
-            <a href="${data.website}" target="_blank">
-                ${data.website}
-            </a>
-        </p>
+            <div class="detail-item">
 
-        <p>
+                <h4>Company</h4>
 
-            <strong>Title :</strong>
+                <p>${data.company}</p>
 
-            ${data.websiteData.title || "N/A"}
+            </div>
 
-        </p>
+            <div class="detail-item">
 
-        <p>
+                <h4>Website</h4>
 
-            <strong>Description :</strong>
+                <p>
 
-            ${data.websiteData.description || "N/A"}
+                    <a href="${data.website}" target="_blank">
 
-        </p>
+                        ${data.website}
 
-        <h4>Main Headings</h4>
+                    </a>
+
+                </p>
+
+            </div>
+
+            <div class="detail-item">
+
+                <h4>Website Title</h4>
+
+                <p>
+
+                    ${data.websiteData.title || "N/A"}
+
+                </p>
+
+            </div>
+
+            <div class="detail-item">
+
+                <h4>Description</h4>
+
+                <p>
+
+                    ${data.websiteData.description || "N/A"}
+
+                </p>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        <h3>Main Headings</h3>
+
+        <br>
 
         <ul>
 
-        ${(data.websiteData.headings || [])
-            .map(h => `<li>${h}</li>`)
-            .join("")}
+            ${(data.websiteData.headings || [])
+
+                .map(item => `<li>${item}</li>`)
+
+                .join("")}
 
         </ul>
 
@@ -161,17 +282,23 @@ function displayCompetitors(list) {
 
     if (!list || list.length === 0) {
 
-        competitorsDiv.innerHTML = "No competitors found.";
+        competitorsDiv.innerHTML = "<p>No competitors found.</p>";
 
         return;
 
     }
 
-    competitorsDiv.innerHTML = `
-        <ul>
-            ${list.map(item => `<li>${item}</li>`).join("")}
-        </ul>
-    `;
+    competitorsDiv.innerHTML = list.map(company => `
+
+        <div class="competitor-card">
+
+            <h3>${company}</h3>
+
+            <p>Competitor</p>
+
+        </div>
+
+    `).join("");
 
 }
 
@@ -183,7 +310,7 @@ function displayLatestNews(news) {
 
     if (!news || news.length === 0) {
 
-        latestNewsDiv.innerHTML = "No news found.";
+        latestNewsDiv.innerHTML = "<p>No news found.</p>";
 
         return;
 
@@ -193,28 +320,25 @@ function displayLatestNews(news) {
 
         <div class="news-card">
 
-            <h4>${article.title}</h4>
+            <h3>${article.title}</h3>
 
             <p>
 
-                ${article.description || ""}
+                ${article.description || "No description available."}
 
             </p>
 
             <a href="${article.url}" target="_blank">
 
-                Read More
+                Read More →
 
             </a>
-
-            <hr>
 
         </div>
 
     `).join("");
 
 }
-
 // =========================================
 // SWOT
 // =========================================
@@ -246,7 +370,116 @@ function displaySWOT(swot) {
 }
 
 // =========================================
-// Chat
+// Analytics Charts
+// =========================================
+
+function createCharts(data) {
+
+    const competitorCanvas = document.getElementById("competitorChart");
+    const newsCanvas = document.getElementById("newsChart");
+
+    if (competitorChart) {
+        competitorChart.destroy();
+    }
+
+    if (newsChart) {
+        newsChart.destroy();
+    }
+
+    competitorChart = new Chart(competitorCanvas, {
+
+        type: "bar",
+
+        data: {
+
+            labels: data.competitors,
+
+            datasets: [{
+
+                label: "Competitors",
+
+                data: data.competitors.map(() => 1)
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio:false,
+
+            plugins: {
+
+                legend: {
+
+                    display: false
+
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        stepSize: 1
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+    newsChart = new Chart(newsCanvas, {
+
+        type: "doughnut",
+
+        data: {
+
+            labels: [
+
+                "News Articles",
+
+                "Remaining"
+
+            ],
+
+            datasets: [{
+
+                data: [
+
+                    data.latestNews.length,
+
+                    Math.max(10 - data.latestNews.length, 0)
+
+                ]
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false
+
+        }
+
+    });
+
+}
+
+// =========================================
+// AI Chat
 // =========================================
 
 async function askQuestion() {
@@ -259,18 +492,30 @@ async function askQuestion() {
 
     chatInput.value = "";
 
+    askBtn.disabled = true;
+
+    askBtn.textContent = "Thinking...";
+
     try {
 
         const response = await fetch(
             "http://localhost:3000/chat",
             {
+
                 method: "POST",
+
                 headers: {
+
                     "Content-Type": "application/json"
+
                 },
+
                 body: JSON.stringify({
+
                     message: question
+
                 })
+
             }
         );
 
@@ -279,11 +524,20 @@ async function askQuestion() {
         appendAIMessage(marked.parse(data.response));
 
     }
+
     catch (error) {
 
         console.error(error);
 
-        appendAIMessage("❌ Unable to contact server.");
+        appendAIMessage("Unable to contact server.");
+
+    }
+
+    finally {
+
+        askBtn.disabled = false;
+
+        askBtn.textContent = "Send";
 
     }
 
@@ -334,15 +588,76 @@ function showPage(pageId) {
     document.querySelectorAll(".page").forEach(page => {
 
         page.style.display = "none";
+        if(pageId==="analyticsPage"){
+
+    setTimeout(()=>{
+
+        if(competitorChart){
+
+            competitorChart.resize();
+
+        }
+
+        if(newsChart){
+
+            newsChart.resize();
+
+        }
+
+    },100);
+
+}
 
     });
 
-    const selectedPage = document.getElementById(pageId);
+    document.querySelectorAll(".sidebar-menu li").forEach(item => {
 
-    if (selectedPage) {
+        item.classList.remove("active");
 
-        selectedPage.style.display = "block";
+    });
+
+    const page = document.getElementById(pageId);
+
+    if (page) {
+
+        page.style.display = "block";
+
+    }
+
+    const menuItems = document.querySelectorAll(".sidebar-menu li");
+
+    switch (pageId) {
+
+        case "dashboardPage":
+            menuItems[0].classList.add("active");
+            break;
+
+        case "companiesPage":
+            menuItems[1].classList.add("active");
+            break;
+
+        case "newsPage":
+            menuItems[2].classList.add("active");
+            break;
+
+        case "swotPage":
+            menuItems[3].classList.add("active");
+            break;
+
+        case "analyticsPage":
+            menuItems[4].classList.add("active");
+            break;
+
+        case "chatPage":
+            menuItems[5].classList.add("active");
+            break;
 
     }
 
 }
+
+// =========================================
+// Initial Page
+// =========================================
+
+showPage("dashboardPage");
