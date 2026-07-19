@@ -33,77 +33,111 @@ ${(latestNews || [])
     .map(news => news.title)
     .join("\n")}
 
-Return ONLY valid JSON in this format:
+Return ONLY valid JSON.
+
+Example:
 
 {
-  "strengths": [
-    "...",
-    "...",
-    "..."
-  ],
-  "weaknesses": [
-    "...",
-    "...",
-    "..."
-  ],
-  "opportunities": [
-    "...",
-    "...",
-    "..."
-  ],
-  "threats": [
-    "...",
-    "...",
-    "..."
-  ]
+  "strengths": {
+    "score": 85,
+    "points": [
+      "...",
+      "...",
+      "..."
+    ]
+  },
+  "weaknesses": {
+    "score": 40,
+    "points": [
+      "...",
+      "...",
+      "..."
+    ]
+  },
+  "opportunities": {
+    "score": 72,
+    "points": [
+      "...",
+      "...",
+      "..."
+    ]
+  },
+  "threats": {
+    "score": 35,
+    "points": [
+      "...",
+      "...",
+      "..."
+    ]
+  }
 }
 
-Do not include markdown.
-Do not include explanations.
-Return JSON only.
+Rules:
+
+- score must be between 0 and 100.
+- Return JSON only.
+- Do not include markdown.
+- Do not include explanations.
 `;
 
     try {
 
-        console.log("Using Model:", process.env.HF_MODEL);
-
         const completion = await client.chat.completions.create({
+
             model: process.env.HF_MODEL,
+
             messages: [
                 {
                     role: "user",
                     content: prompt
                 }
             ],
+
             temperature: 0.3
+
         });
 
         const content = completion.choices[0].message.content;
 
-        console.log("Raw SWOT Response:");
-        console.log(content);
-
-        // Extract JSON even if extra text exists
         const match = content.match(/\{[\s\S]*\}/);
 
         if (!match) {
-            throw new Error("No JSON found in AI response.");
+            throw new Error("No JSON found.");
         }
 
         return JSON.parse(match[0]);
 
-    } catch (error) {
+    }
+    catch (error) {
 
-        console.error("SWOT Error:");
         console.error(error);
 
         return {
-            strengths: [],
-            weaknesses: [],
-            opportunities: [],
-            threats: []
+
+            strengths: {
+                score: 0,
+                points: []
+            },
+
+            weaknesses: {
+                score: 0,
+                points: []
+            },
+
+            opportunities: {
+                score: 0,
+                points: []
+            },
+
+            threats: {
+                score: 0,
+                points: []
+            }
+
         };
+
     }
+
 }
 
 module.exports = {

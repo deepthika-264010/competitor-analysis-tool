@@ -5,7 +5,7 @@ const companyExtractor = require("./companyExtractor");
 const competitorService = require("./competitorService");
 const swotService = require("./swotService");
 const companySummaryService = require("./companySummaryService");
-
+const sentimentService = require("./sentimentService");
 const analysisRepository = require("../repository/analysisRepository");
 
 async function analyzeCompany(message) {
@@ -24,12 +24,18 @@ async function analyzeCompany(message) {
     // STEP 1 : Check Database
     // ==================================================
 
-    const existingAnalysis = await analysisRepository.getAnalysis(company);
+    /*const existingAnalysis = await analysisRepository.getAnalysis(company);
 
     if (existingAnalysis) {
 
         console.log("✅ Analysis loaded from PostgreSQL");
     await analysisRepository.setLastCompany(company);
+    const competitorPresence = {};
+
+existingAnalysis.competitors.forEach((competitor) => {
+    competitorPresence[competitor] =
+        (competitorPresence[competitor] || 0) + 1;
+});
         return {
             success: true,
             company: existingAnalysis.company_name,
@@ -37,13 +43,14 @@ async function analyzeCompany(message) {
             websiteData: existingAnalysis.website_data,
             competitors: existingAnalysis.competitors,
             latestNews: existingAnalysis.latest_news,
-            swot: existingAnalysis.swot
+            swot: existingAnalysis.swot,
+            sentiment: await sentimentService.analyzeNews(existingAnalysis.latest_news),
         };
     }
 
     console.log("❌ Company not found in DB");
     console.log("🔍 Performing fresh analysis...");
-
+*/
     // ==================================================
     // STEP 2 : Fresh Analysis
     // ==================================================
@@ -59,16 +66,21 @@ async function analyzeCompany(message) {
     websiteData = companySummaryService.createSummary(websiteData);
 
     const latestNews = await newsService.getNews(company);
-
+    const sentiment =await sentimentService.analyzeNews(latestNews);
     const competitors = await competitorService.getCompetitors(company);
+    const competitorPresence = {};
 
+competitors.forEach((competitor) => {
+    competitorPresence[competitor] =
+        (competitorPresence[competitor] || 0) + 1;
+});
     const swot = await swotService.generateSWOT(
         company,
         websiteData,
         competitors,
         latestNews
     );
-
+console.log(swot);
     // ==================================================
     // STEP 3 : Save to PostgreSQL
     // ==================================================
@@ -88,20 +100,21 @@ async function analyzeCompany(message) {
     // ==================================================
 
     return {
+success:true,
 
-        success: true,
+    company,
 
-        company,
+    website,
 
-        website,
+    websiteData,
 
-        websiteData,
+    competitors,
 
-        competitors,
+    latestNews,
 
-        latestNews,
+    sentiment,
 
-        swot
+    swot
 
     };
 

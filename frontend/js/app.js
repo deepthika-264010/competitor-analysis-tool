@@ -348,76 +348,116 @@ function displaySWOT(swot) {
     if (!swot) return;
 
     document.getElementById("strengthsList").innerHTML =
-        (swot.strengths || [])
+        (swot.strengths.points || [])
             .map(item => `<li>${item}</li>`)
             .join("");
 
     document.getElementById("weaknessesList").innerHTML =
-        (swot.weaknesses || [])
+        (swot.weaknesses.points || [])
             .map(item => `<li>${item}</li>`)
             .join("");
 
     document.getElementById("opportunitiesList").innerHTML =
-        (swot.opportunities || [])
+        (swot.opportunities.points || [])
             .map(item => `<li>${item}</li>`)
             .join("");
 
     document.getElementById("threatsList").innerHTML =
-        (swot.threats || [])
+        (swot.threats.points || [])
             .map(item => `<li>${item}</li>`)
             .join("");
 
 }
-
 // =========================================
 // Analytics Charts
 // =========================================
 
 function createCharts(data) {
+    
+    const competitorCanvas =
+        document.getElementById("competitorChart");
 
-    const competitorCanvas = document.getElementById("competitorChart");
-    const newsCanvas = document.getElementById("newsChart");
+    /*const newsCanvas =
+        document.getElementById("newsChart");*/
 
-    if (competitorChart) {
+    if (competitorChart)
         competitorChart.destroy();
-    }
 
-    if (newsChart) {
+    /*if (newsChart)
         newsChart.destroy();
-    }
-
+console.log("Complete Response");
+console.log(data);
+console.log("SWOT");
+console.log(data.swot);
+    // ===============================
+    // SWOT SCORE CHART
+    // ===============================
+console.log([
+    data.swot.strengths.score,
+    data.swot.weaknesses.score,
+    data.swot.opportunities.score,
+    data.swot.threats.score
+]);*/
     competitorChart = new Chart(competitorCanvas, {
 
         type: "bar",
 
         data: {
 
-            labels: data.competitors,
+            labels: [
+
+                "Strengths",
+
+                "Weaknesses",
+
+                "Opportunities",
+
+                "Threats"
+
+            ],
 
             datasets: [{
 
-                label: "Competitors",
+                label: "SWOT Score",
 
-                data: data.competitors.map(() => 1)
+                data: [
+
+                    data.swot.strengths.score,
+
+                    data.swot.weaknesses.score,
+
+                    data.swot.opportunities.score,
+
+                    data.swot.threats.score
+
+                ],
+
+    backgroundColor: [
+        "#4CAF50",
+        "#F44336",
+        "#2196F3",
+        "#FF9800"
+    ],
+
+    borderColor: [
+        "#4CAF50",
+        "#F44336",
+        "#2196F3",
+        "#FF9800"
+    ],
+
+    borderWidth: 1
 
             }]
+            
 
         },
 
         options: {
 
             responsive: true,
-            maintainAspectRatio:false,
 
-            plugins: {
-
-                legend: {
-
-                    display: false
-
-                }
-
-            },
+            maintainAspectRatio: false,
 
             scales: {
 
@@ -425,11 +465,7 @@ function createCharts(data) {
 
                     beginAtZero: true,
 
-                    ticks: {
-
-                        stepSize: 1
-
-                    }
+                    max: 100
 
                 }
 
@@ -439,7 +475,11 @@ function createCharts(data) {
 
     });
 
-    newsChart = new Chart(newsCanvas, {
+    // ===============================
+    // NEWS SENTIMENT
+    // ===============================
+
+    /*newsChart = new Chart(newsCanvas, {
 
         type: "doughnut",
 
@@ -447,9 +487,11 @@ function createCharts(data) {
 
             labels: [
 
-                "News Articles",
+                "Positive",
 
-                "Remaining"
+                "Neutral",
+
+                "Negative"
 
             ],
 
@@ -457,9 +499,11 @@ function createCharts(data) {
 
                 data: [
 
-                    data.latestNews.length,
+                    data.sentiment.positive,
 
-                    Math.max(10 - data.latestNews.length, 0)
+                    data.sentiment.neutral,
+
+                    data.sentiment.negative
 
                 ]
 
@@ -470,11 +514,12 @@ function createCharts(data) {
         options: {
 
             responsive: true,
+
             maintainAspectRatio: false
 
         }
 
-    });
+    });*/
 
 }
 
