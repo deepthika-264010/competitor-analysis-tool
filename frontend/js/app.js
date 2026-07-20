@@ -70,7 +70,7 @@ async function analyzeCompany() {
 
     try {
 
-        const response = await fetch("https://competitor-analysis-tool-i5o2.onrender.com", {
+        const response = await fetch("https://competitor-analysis-tool-i5o2.onrender.com/analyze-company", {
 
             method: "POST",
 
