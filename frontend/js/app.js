@@ -544,7 +544,7 @@ async function askQuestion() {
     try {
 
         const response = await fetch(
-            "http://localhost:3000/chat",
+            "https://competitor-analysis-tool-1.onrender.com/analyze-company/chat",
             {
 
                 method: "POST",
